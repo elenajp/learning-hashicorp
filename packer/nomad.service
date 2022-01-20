@@ -1,0 +1,12 @@
+[Service]
+# ExecStart=/usr/local/bin/nomad agent -dev -bind=0.0.0.0
+ExecStart=/usr/local/bin/nomad agent -config=config.json
+ExecReload=/bin/kill -HUP $MAINPID
+User=root
+Group=root
+KillMode=process
+Restart=always
+RestartSec=10sec
+
+[Install]
+WantedBy=multi-user.target
