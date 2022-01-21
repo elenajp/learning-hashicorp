@@ -1,11 +1,17 @@
 locals {
-   stack_id = "elena"
-   ami_filters = {
+  stack_id = "elena"
+  ami_filters = {
     "tag:ReleaseTag" = ["release"]
     "tag:Version"    = ["v47"]
   }
 
-  consul_master_token = "test"
+  consul_master_token   = "test"
+  consul_datacenter     = "test"
+  consul_encryption_key = base64encode(random_string.consul_encryption_key.result)
+
+  nomad_region         = "test"
+  nomad_datacenter     = "test"
+  nomad_encryption_key = base64encode(random_string.consul_encryption_key.result)
 }
 
 variable "instance_name" {

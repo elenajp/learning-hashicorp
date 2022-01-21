@@ -1,0 +1,24 @@
+{
+    "acl_enforce_version_8": false,
+    "client_addr": "0.0.0.0",
+    "advertise_addr": "{{ GetInterfaceIP \"ens5\" }}",
+    "data_dir": "/srv/consul",
+    "leave_on_terminate": true,
+    "recursors": [
+      "127.0.0.1"
+    ],
+    "retry_join": [
+      "provider=aws tag_key=ConsulCluster tag_value=${consul_cluster} addr_type=private_v4\n"
+    ],
+    "acl_datacenter": "${datacenter}",
+    "datacenter": "${datacenter}",
+    "encrypt": "${encryption_key}",
+    "service": {
+      "checks": [],
+      "id": "consul-client",
+      "name": "consul-client",
+      "port": 8500,
+      "tags": [],
+      "token": null
+    }
+  }

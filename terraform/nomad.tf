@@ -4,19 +4,19 @@ resource "random_string" "nomad_encryption_key" {
 
 
 module "nomad_server" {
-  source      = "git@github.com:edgelaboratories/dawn-nomad-server.git//terraform/aws?ref=v21"
+  source = "git@github.com:edgelaboratories/dawn-nomad-server.git//terraform/aws?ref=v21"
 
   ami_filters = local.ami_filters
 
-  desired_capacity      = 3
-  instance_type         = "t3.medium"
-  
-  nomad_region         = "test"
-  nomad_datacenter     = "test"
-  nomad_encryption_key = base64encode(random_string.nomad_encryption_key.result)
+  desired_capacity = 3
+  instance_type    = "t3.medium"
 
-  consul_token          = local.consul_master_token
-  consul_encryption_key = base64encode(random_string.consul_encryption_key.result)
+  nomad_region         = local.nomad_region
+  nomad_datacenter     = local.nomad_datacenter
+  nomad_encryption_key = local.nomad_encryption_key
+
+  consul_token   = local.consul_master_token
+  consul_encryption_key = local.consul_encryption_key
 
   security_group_ids = [aws_security_group.allow_nomad.id]
 

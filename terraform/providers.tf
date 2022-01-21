@@ -8,7 +8,14 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 3.70.0"
     }
+    vault = {
+      source = "cyrilgdn/vault"
+    }
   }
 
   required_version = ">= 0.14.9"
+}
+
+provider "vault" {
+  address = "http://localhost:8200"
 }
