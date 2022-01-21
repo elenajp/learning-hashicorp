@@ -16,9 +16,18 @@ echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docke
 sudo apt-get update
 sudo apt-get install --yes docker-ce docker-ce-cli containerd.io
 
+
+# Install Nomad
 curl -O https://releases.hashicorp.com/nomad/1.2.1/nomad_1.2.1_linux_amd64.zip
 sudo unzip nomad_1.2.1_linux_amd64.zip -d /usr/local/bin
 
 sudo mv /tmp/nomad.service /etc/systemd/system/nomad.service
+
+# Install Consul 
+curl -O https://releases.hashicorp.com/consul/1.3.1/consul_1.3.1_linux_amd64.zip
+sudo unzip consul_1.3.1_linux_amd64.zip -d /usr/local/bin
+
+sudo mv /tmp/consul.service /etc/systemd/system/consul.service
+
+
 sudo systemctl daemon-reload
-sudo systemctl enable nomad.service

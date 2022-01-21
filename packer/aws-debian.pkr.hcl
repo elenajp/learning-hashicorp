@@ -49,11 +49,15 @@ build {
     destination = "/tmp/nomad.service"
   }
 
+  provisioner "file" {
+    source = "consul.service"
+    destination = "/tmp/consul.service"
+  }
+
   provisioner "shell" {
     script = "./install.sh"
   }
 }
-
 
     # IN PACKER:
     # Install Docker: https://docs.docker.com/engine/install/debian/

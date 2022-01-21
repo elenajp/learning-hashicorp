@@ -1,6 +1,6 @@
 [Service]
 # ExecStart=/usr/local/bin/nomad agent -dev -bind=0.0.0.0
-ExecStart=/usr/local/bin/nomad agent -config=config.json
+ExecStart=/usr/local/bin/nomad agent -config-dir=/etc/nomad/
 ExecReload=/bin/kill -HUP $MAINPID
 User=root
 Group=root
