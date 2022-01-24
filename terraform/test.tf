@@ -126,24 +126,23 @@ resource "aws_lb_listener" "elena-listener" {
   }
 }
 
-// resource "aws_autoscaling_group" "elena-ASG" {
-//   name                      = "elena-ASG-nomad"
-//   max_size                  = 5
-//   min_size                  = 2
-//   desired_capacity          = 3
-//   health_check_grace_period = 200
-//   health_check_type         = "EC2"
+resource "aws_autoscaling_group" "elena-ASG" {
+  name                      = "elena-ASG-nomad"
+  max_size                  = 5
+  min_size                  = 2
+  desired_capacity          = 3
+  health_check_grace_period = 200
+  health_check_type         = "EC2"
+  // user_data                 = data.cloudinit_config.user_data.rendered
 
-//   launch_template {
-//     id      = aws_launch_template.elena-template.id
-//     version = "$Latest"
-//   }
+  launch_template {
+    id      = aws_launch_template.elena-template.id
+    version = "$Latest"
+  }
 
-//   vpc_zone_identifier  = local.private_subnet_ids
+  vpc_zone_identifier  = local.private_subnet_ids
 
-// }
-
-
+}
 
 ## Cloud init allows you to pass a shell script to your instance that installs or configures the machine to your specifications.
 
@@ -167,16 +166,16 @@ resource "aws_lb_listener" "elena-listener" {
 # Then in terraform code we use the cloudinit_config data source: https://registry.terraform.io/providers/hashicorp/cloudinit/latest/docs/data-sources/cloudinit_config
 # to transform the configuration in the right format for AWS user data.
 # 
-// data "cloudinit_config" "user_data" {
-//   gzip          = false
-//   base64_encode = false
+data "cloudinit_config" "user_data" {
+  gzip          = false
+  base64_encode = true
 
-//   part {
-//     filename     = "init.cfg"
-//     content_type = "text/cloud-config"
-//     content = file("${path.module}/cloud-init.tpl")
-//   }
-// }
+  part {
+    filename     = "cloud/init.yml.tpl"
+    content_type = "text/cloud-config"
+    content = file("${path.module}/cloud-init.yml.tpl")
+  }
+}
 
 //
 // Then in the aws_launch_template: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template#user_data
