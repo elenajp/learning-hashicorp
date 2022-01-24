@@ -15,7 +15,7 @@ module "nomad_server" {
   nomad_datacenter     = local.nomad_datacenter
   nomad_encryption_key = local.nomad_encryption_key
 
-  consul_token   = local.consul_master_token
+  consul_token          = local.consul_master_token
   consul_encryption_key = local.consul_encryption_key
 
   security_group_ids = [aws_security_group.allow_nomad.id]

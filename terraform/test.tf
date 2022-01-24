@@ -126,14 +126,6 @@ resource "aws_lb_listener" "elena-listener" {
   }
 }
 
-// resource "aws_launch_template" "elena-template" {
-//   name                    = "elena-template"
-//   image_id                = data.aws_ami.elena.id
-//   disable_api_termination = true
-//   instance_type           = "t3.micro"
-//   key_name                = "elena-key"
-// }
-
 // resource "aws_autoscaling_group" "elena-ASG" {
 //   name                      = "elena-ASG-nomad"
 //   max_size                  = 5
@@ -185,7 +177,7 @@ resource "aws_lb_listener" "elena-listener" {
 //     content = file("${path.module}/cloud-init.tpl")
 //   }
 // }
-//
+
 //
 // Then in the aws_launch_template: https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/launch_template#user_data
 // we fill the user_data (that all instances of the ASG will have) with this cloud_config rendered.
@@ -205,26 +197,33 @@ resource "aws_iam_instance_profile" "docker_host" {
 resource "aws_iam_role" "docker_host" {
   name = "docker_host"
 
-  assume_role_policy = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
         {
-            "Action": "sts:AssumeRole",
-            "Principal": {terraform provisioner
-               "Service": "ec2.amazonaws.com"
-            },
-            "Effect": "Allow",
-            "Sid": ""
+            Action = "sts:AssumeRole"
+            Principal = {
+              Service = "ec2.amazonaws.com"
+            }
+            Effect = "Allow"
+            Sid = ""
         }
     ]
-}
-EOF
+  })
 }
 
 resource "aws_iam_role_policy_attachment" "docker_host_describe" {
   role       = aws_iam_role.docker_host.name
   policy_arn = aws_iam_policy.describe_ec2.arn
+}
+
+resource "aws_launch_template" "elena-template" {
+  name                    = "elena-template"
+  image_id                = data.aws_ami.elena.id
+  disable_api_termination = true
+  instance_type           = "t3.micro"
+  key_name                = "elena-key"
+  user_data               = data.cloudinit_config.user_data.rendered
 }
 
 resource "aws_instance" "docker_host" {
@@ -235,6 +234,15 @@ resource "aws_instance" "docker_host" {
   vpc_security_group_ids = [aws_security_group.allow_nomad.id]
   iam_instance_profile   = aws_iam_instance_profile.docker_host.name
 
+  user_data              = templatefile("${path.module}/cloud-init.yml.tpl", {
+    encryption_key   = local.consul_encryption_key
+    datacenter       = local.consul_datacenter
+    consul_cluster   = local.stack_id
+    nomad_datacenter = local.nomad_datacenter
+    nomad_region     = local.nomad_region
+    consul_token     = local.consul_master_token
+  })
+
   tags = {
     Name = "Docker host"
   }
@@ -244,41 +252,42 @@ resource "aws_instance" "docker_host" {
     user = "admin"
     host = self.public_ip
   }
-
-  provisioner "file" {
-    destination = "/tmp/consul.json"
-    content = templatefile("${path.module}/consul.json", {
-      encryption_key = local.consul_encryption_key
-      datacenter     = local.consul_datacenter
-      consul_cluster = local.stack_id
-    })
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo mkdir /etc/consul",
-      "sudo mv /tmp/consul.json /etc/consul/config.json",
-      "sudo systemctl start consul",
-    ]
-  }
-
-  provisioner "file" {
-    destination = "/tmp/nomad.json"
-    content = templatefile("${path.module}/nomad.json", {
-      nomad_datacenter = local.nomad_datacenter
-      nomad_region     = local.nomad_region
-      consul_token     = local.consul_master_token
-    })
-  }
-
-  provisioner "remote-exec" {
-    inline = [
-      "sudo mkdir /etc/nomad",
-      "sudo mv /tmp/nomad.json /etc/nomad/config.json",
-      "sudo systemctl start nomad",
-    ]
-  }
 }
+
+
+  // provisioner "file" {
+  //   destination = "/tmp/consul.json"
+  //   content = templatefile("${path.module}/consul.json", {
+  //     encryption_key = local.consul_encryption_key
+  //     datacenter     = local.consul_datacenter
+  //     consul_cluster = local.stack_id
+  //   })
+  // }
+
+// provisioner "file" {
+//   destination = "/tmp/nomad.json"
+//   content = templatefile("${path.module}/nomad.json", {
+//     nomad_datacenter = local.nomad_datacenter
+//     nomad_region     = local.nomad_region
+//     consul_token     = local.consul_master_token
+//   })
+// }
+
+// provisioner "remote-exec" {
+//   inline = [
+//     "sudo mkdir /etc/consul",
+//     "sudo mv /tmp/consul.json /etc/consul/config.json",
+//     "sudo systemctl start consul",
+//   ]
+// }
+
+// provisioner "remote-exec" {
+//   inline = [
+//     "sudo mkdir /etc/nomad",
+//     "sudo mv /tmp/nomad.json /etc/nomad/config.json",
+//     "sudo systemctl start nomad",
+//   ]
+// }
 
 output "docker_host_id" {
   value = aws_instance.bastion.id
