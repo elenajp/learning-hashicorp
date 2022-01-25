@@ -133,7 +133,12 @@ resource "aws_autoscaling_group" "elena-ASG" {
   desired_capacity          = 3
   health_check_grace_period = 200
   health_check_type         = "EC2"
-  // user_data                 = data.cloudinit_config.user_data.rendered
+
+  tag {
+    key                 = "Name"
+    value               = "Test-ASG"
+    propagate_at_launch = true
+  }
 
   launch_template {
     id      = aws_launch_template.elena-template.id
@@ -219,7 +224,6 @@ resource "aws_iam_role_policy_attachment" "docker_host_describe" {
 resource "aws_launch_template" "elena-template" {
   name                    = "elena-template"
   image_id                = data.aws_ami.elena.id
-  disable_api_termination = true
   instance_type           = "t3.micro"
   key_name                = "elena-key"
   user_data               = data.cloudinit_config.user_data.rendered
