@@ -15,7 +15,7 @@ module "nomad_server" {
   nomad_datacenter     = local.nomad_datacenter
   nomad_encryption_key = local.nomad_encryption_key
 
-  consul_token          = local.consul_master_token
+  consul_token   = local.consul_master_token
   consul_encryption_key = local.consul_encryption_key
 
   security_group_ids = [aws_security_group.allow_nomad.id]
@@ -28,4 +28,28 @@ module "nomad_server" {
   instance_role_policies_arn = [
     resource.aws_iam_policy.describe_ec2.arn,
   ]
+}
+
+resource "aws_lb" "nomad-lb" {
+  name            = "test-nomad-lb"
+  internal        = false
+  security_groups = [aws_security_group.elena-LB-SG.id]
+  subnets         = local.subnet_ids
+
+  enable_deletion_protection = false
+
+  tags = {
+    Environment = "test"
+  }
+}
+
+resource "aws_lb_listener" "nomad-listener" {
+  load_balancer_arn = aws_lb.nomad-lb.arn
+  port              = "8080"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = module.nomad_server.target_group_arn[0]
+  }
 }

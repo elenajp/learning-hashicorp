@@ -71,6 +71,13 @@ resource "aws_security_group" "elena-LB-SG" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
@@ -97,6 +104,13 @@ resource "aws_lb" "elena-lb" {
 //   target_id        = aws_instance.ec2_test.id
 //   port             = 8081
 // }
+
+resource "aws_lb_target_group_attachment" "elena-test" {
+  target_group_arn = aws_lb_target_group.elena-TG.arn
+  target_id        = aws_instance.docker_host.id
+  port             = 8080
+}
+
 
 resource "aws_lb_target_group" "elena-TG" {
   name     = "elena-TG"
