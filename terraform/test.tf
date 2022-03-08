@@ -11,7 +11,7 @@ data "aws_ami" "elena" {
 
 resource "aws_key_pair" "elena" {
   key_name   = "elena-key"
-  public_key = file("~/.ssh/id_ed25519.pub")
+  public_key = file("enter_key_here")
 }
 
 output "vpc" {
