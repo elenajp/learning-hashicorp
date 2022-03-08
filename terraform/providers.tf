@@ -9,7 +9,7 @@ terraform {
       version = "~> 3.70.0"
     }
     vault = {
-      source = "cyrilgdn/vault"
+      source = "enter_source_here"
     }
   }
 
