@@ -4,7 +4,7 @@ resource "random_string" "nomad_encryption_key" {
 
 
 module "nomad_server" {
-  source = "git@github.com:edgelaboratories/dawn-nomad-server.git//terraform/aws?ref=v21"
+  source = "git@github.com:enter_github_org_here/dawn-nomad-server.git//terraform/aws?ref=v21"
 
   ami_filters = local.ami_filters
 
