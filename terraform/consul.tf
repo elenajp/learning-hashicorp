@@ -6,7 +6,7 @@ resource "random_string" "consul_encryption_key" {
 # This module creates the Consul cluster
 # (3 servers with an autoscaling group)
 module "consul_server" {
-  source = "git@github.com:edgelaboratories/dawn-consul-server.git//terraform/aws?ref=v23"
+  source = "git@github.com:enter_github_org_here/dawn-consul-server.git//terraform/aws?ref=v23"
 
   stack_id       = local.stack_id
   vpc_id         = module.vpc.id
